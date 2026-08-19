@@ -1,0 +1,6 @@
+{
+  "name": "Macro & Calorie Tracker",
+  "description": "A fitness nutrition dashboard featuring customizable goal presets, real-time calorie budget tracking, macro meters, food database quick-logging, and categorized daily meal management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
