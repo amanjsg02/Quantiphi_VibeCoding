@@ -1,6 +1,6 @@
 {
-  "name": "Macro & Calorie Tracker",
-  "description": "A fitness nutrition dashboard featuring customizable goal presets, real-time calorie budget tracking, macro meters, food database quick-logging, and categorized daily meal management.",
+  "name": "MacroPulse",
+  "description": "MacroPulse - A precision fitness and nutrition tracking platform with customizable targets, dynamic calorie budgets, live macronutrient meters, 7-day intake analytics, and multi-user profile synchronization.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

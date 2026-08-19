@@ -23,6 +23,7 @@ import { UserLoginModal } from './components/UserLoginModal';
 import { AddMealPage } from './components/AddMealPage';
 import { SubscriptionPage } from './components/SubscriptionPage';
 import { WeeklyIntakeView } from './components/WeeklyIntakeView';
+import { AuthModal } from './components/AuthModal';
 
 export default function App() {
   // Navigation Tabs: dashboard, add_meal, weekly_intake, food_db, goals, history, subscription
@@ -50,6 +51,12 @@ export default function App() {
       }
     }
     return INITIAL_USERS;
+  });
+
+  // Authentication State (Login & Logout)
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    const savedAuth = localStorage.getItem('nutritrack_is_logged_in');
+    return savedAuth !== null ? savedAuth === 'true' : true;
   });
 
   const [activeUserId, setActiveUserId] = useState<string>(() => {
@@ -99,15 +106,17 @@ export default function App() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([
     {
       id: 'notif_welcome',
-      title: 'Welcome to NutriTrack',
-      message: `Active profile: ${currentUser.name}. Tracker calibrated to ${activePreset.name}.`,
+      title: 'Welcome to MacroPulse',
+      message: `Signed in as ${currentUser.name}. Tracker calibrated to ${activePreset.name}.`,
       time: 'Just now',
       type: 'info',
       read: false,
     },
   ]);
 
-  // Modals
+  // Modals State
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
   const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
   const [isGoalConfigModalOpen, setIsGoalConfigModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -139,8 +148,63 @@ export default function App() {
   }, [activeUserId]);
 
   useEffect(() => {
+    localStorage.setItem('nutritrack_is_logged_in', String(isLoggedIn));
+  }, [isLoggedIn]);
+
+  useEffect(() => {
     localStorage.setItem('nutritrack_all_meals', JSON.stringify(meals));
   }, [meals]);
+
+  // Authentication Handlers
+  const handleLoginSuccess = (user: UserProfile) => {
+    setActiveUserId(user.id);
+    setIsLoggedIn(true);
+    setNotifications((prev) => [
+      {
+        id: `notif_${Date.now()}`,
+        title: 'Sign In Successful',
+        message: `Welcome back, ${user.name}! Your records are fully loaded.`,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        type: 'success',
+        read: false,
+      },
+      ...prev,
+    ]);
+  };
+
+  const handleRegisterSuccess = (newUser: UserProfile) => {
+    setUsers((prev) => [...prev, newUser]);
+    setActiveUserId(newUser.id);
+    setIsLoggedIn(true);
+    setNotifications((prev) => [
+      {
+        id: `notif_${Date.now()}`,
+        title: 'Account Created',
+        message: `Welcome to NutriTrack, ${newUser.name}! Your personalized calorie target is ready.`,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        type: 'success',
+        read: false,
+      },
+      ...prev,
+    ]);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setNotifications((prev) => [
+      {
+        id: `notif_${Date.now()}`,
+        title: 'Logged Out',
+        message: 'You have been signed out. Please log in with your email & password to sync records.',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        type: 'info',
+        read: false,
+      },
+      ...prev,
+    ]);
+    setIsAuthModalOpen(true);
+    setAuthModalMode('login');
+  };
 
   // Goal Switch Handler for active user
   const handleSelectGoal = (newGoal: FitnessGoal) => {
@@ -306,24 +370,35 @@ export default function App() {
         onOpenGoalModal={() => setIsGoalConfigModalOpen(true)}
         currentUserName={currentUser.name}
         subscriptionTier={currentUser.subscriptionTier}
+        isLoggedIn={isLoggedIn}
+        onLogout={handleLogout}
+        onOpenAuthModal={() => {
+          setAuthModalMode('login');
+          setIsAuthModalOpen(true);
+        }}
       />
 
       {/* Main App Canvas */}
       <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
-        {/* Sticky Header with Subscription Icon, Sidebar Slide Toggle, Search, + Add Meal, User Switcher */}
+        {/* Sticky Header with Subscription Icon, Sidebar Slide Toggle, Search, + Add Meal, Login/Logout & User Profile */}
         <Header
           users={users}
-          currentUser={currentUser}
+          currentUser={isLoggedIn ? currentUser : null}
+          isLoggedIn={isLoggedIn}
           onSelectUser={(newUserId) => setActiveUserId(newUserId)}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           notifications={notifications}
           onClearNotifications={() => setNotifications([])}
-          onOpenLoginModal={() => setIsLoginModalOpen(true)}
+          onOpenLoginModal={() => {
+            setAuthModalMode('login');
+            setIsAuthModalOpen(true);
+          }}
           onOpenGoalModal={() => setIsGoalConfigModalOpen(true)}
           onOpenAddMealPage={() => setActiveTab('add_meal')}
           onOpenSubscriptionPage={() => setActiveTab('subscription')}
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+          onLogout={handleLogout}
           isSidebarOpen={isSidebarOpen}
         />
 
@@ -358,6 +433,34 @@ export default function App() {
             />
           ) : activeTab === 'dashboard' || activeTab === 'history' ? (
             <>
+              {/* Logged Out / Guest Notice Banner if user logged out */}
+              {!isLoggedIn && (
+                <div className="bg-gradient-to-r from-red-950/90 via-zinc-900 to-black rounded-2xl p-4 border border-red-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-red-600 text-white font-black flex items-center justify-center shadow-lg shadow-red-600/30">
+                      🔒
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-extrabold text-white">You are browsing in Guest Mode</h2>
+                      <p className="text-xs text-zinc-300">
+                        Sign in with your email & password to securely save, sync, and access your personal calorie logs.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setAuthModalMode('login');
+                        setIsAuthModalOpen(true);
+                      }}
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-red-600/30 transition-all cursor-pointer"
+                    >
+                      Sign In / Register
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Active User Quick Switch & Plan Status Banner */}
               <div className="bg-zinc-900/90 rounded-2xl p-4 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xl">
                 <div className="flex items-center gap-3">
@@ -465,6 +568,16 @@ export default function App() {
           )}
         </main>
       </div>
+
+      {/* Authentication Modal (Login & Sign Up asking Name, Email, Password) */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        users={users}
+        onLoginSuccess={handleLoginSuccess}
+        onRegisterSuccess={handleRegisterSuccess}
+        initialMode={authModalMode}
+      />
 
       {/* Warning Modal (Budget Exceeded) */}
       <WarningModal
