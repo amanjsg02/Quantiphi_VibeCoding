@@ -1,4 +1,4 @@
-import { FoodItem, GoalPreset } from '../types';
+import { FoodItem, GoalPreset, UserProfile, LoggedMeal } from '../types';
 
 export const DEFAULT_GOAL_PRESETS: Record<'weight_loss' | 'maintenance' | 'muscle_gain', GoalPreset> = {
   weight_loss: {
@@ -32,6 +32,56 @@ export const DEFAULT_GOAL_PRESETS: Record<'weight_loss' | 'maintenance' | 'muscl
     fat: 75,      // ~23%
   },
 };
+
+export const INITIAL_USERS: UserProfile[] = [
+  {
+    id: 'user_alex',
+    name: 'Alex Rivera',
+    email: 'alex.rivera@fitness.io',
+    avatarUrl: '',
+    currentGoal: 'weight_loss',
+    subscriptionTier: 'free',
+    presets: {
+      ...DEFAULT_GOAL_PRESETS,
+    },
+  },
+  {
+    id: 'user_jordan',
+    name: 'Jordan Lee',
+    email: 'jordan.lee@athlete.co',
+    avatarUrl: '',
+    currentGoal: 'muscle_gain',
+    subscriptionTier: 'pro',
+    presets: {
+      ...DEFAULT_GOAL_PRESETS,
+      muscle_gain: {
+        ...DEFAULT_GOAL_PRESETS.muscle_gain,
+        calories: 3100,
+        protein: 210,
+        carbs: 390,
+        fat: 80,
+      },
+    },
+  },
+  {
+    id: 'user_sam',
+    name: 'Sam Patel',
+    email: 'sam.patel@wellness.org',
+    avatarUrl: '',
+    currentGoal: 'maintenance',
+    subscriptionTier: 'free',
+    presets: {
+      ...DEFAULT_GOAL_PRESETS,
+      maintenance: {
+        ...DEFAULT_GOAL_PRESETS.maintenance,
+        calories: 2150,
+        protein: 140,
+        carbs: 260,
+        fat: 60,
+      },
+    },
+  },
+];
 
 export const COMMON_FOOD_DATABASE: FoodItem[] = [
   // Proteins
@@ -408,65 +458,104 @@ export const COMMON_FOOD_DATABASE: FoodItem[] = [
   },
 ];
 
-export const INITIAL_SAMPLE_MEALS = [
+export const INITIAL_SAMPLE_MEALS: LoggedMeal[] = [
   {
     id: 'meal_1',
+    userId: 'user_alex',
     foodId: 'food_rolled_oats',
     name: 'Rolled Oats & Whey Bowl',
-    mealCategory: 'breakfast' as const,
+    mealCategory: 'breakfast',
     grams: 75,
     calories: 284,
     protein: 24,
     carbs: 48,
     fat: 5,
     loggedAt: '08:30 AM',
+    mealTime: '08:30',
   },
   {
     id: 'meal_2',
+    userId: 'user_alex',
     foodId: 'food_blueberries',
     name: 'Fresh Blueberries',
-    mealCategory: 'breakfast' as const,
+    mealCategory: 'breakfast',
     grams: 100,
     calories: 57,
     protein: 1,
     carbs: 14,
     fat: 0,
     loggedAt: '08:35 AM',
+    mealTime: '08:35',
   },
   {
     id: 'meal_3',
+    userId: 'user_alex',
     foodId: 'food_chicken_breast',
     name: 'Grilled Chicken Breast',
-    mealCategory: 'lunch' as const,
+    mealCategory: 'lunch',
     grams: 180,
     calories: 297,
     protein: 56,
     carbs: 0,
     fat: 6,
     loggedAt: '01:15 PM',
+    mealTime: '13:15',
   },
   {
     id: 'meal_4',
+    userId: 'user_alex',
     foodId: 'food_white_rice',
     name: 'Jasmine White Rice',
-    mealCategory: 'lunch' as const,
+    mealCategory: 'lunch',
     grams: 200,
     calories: 260,
     protein: 5,
     carbs: 56,
     fat: 1,
     loggedAt: '01:15 PM',
+    mealTime: '13:15',
   },
   {
     id: 'meal_5',
+    userId: 'user_alex',
     foodId: 'food_broccoli',
     name: 'Steamed Broccoli',
-    mealCategory: 'lunch' as const,
+    mealCategory: 'lunch',
     grams: 120,
     calories: 42,
     protein: 3,
     carbs: 9,
     fat: 0,
     loggedAt: '01:20 PM',
+    mealTime: '13:20',
+  },
+  // Sample for Jordan Lee (Muscle Gain)
+  {
+    id: 'meal_j1',
+    userId: 'user_jordan',
+    foodId: 'food_egg_whole',
+    name: 'Whole Eggs with Whole Wheat Toast',
+    mealCategory: 'breakfast',
+    grams: 200,
+    calories: 480,
+    protein: 32,
+    carbs: 42,
+    fat: 19,
+    loggedAt: '07:30 AM',
+    mealTime: '07:30',
+  },
+  {
+    id: 'meal_j2',
+    userId: 'user_jordan',
+    foodId: 'food_lean_ground_beef',
+    name: 'Beef Patty & Sweet Potato',
+    mealCategory: 'lunch',
+    grams: 250,
+    calories: 520,
+    protein: 48,
+    carbs: 52,
+    fat: 14,
+    loggedAt: '12:45 PM',
+    mealTime: '12:45',
   },
 ];

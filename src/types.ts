@@ -2,6 +2,8 @@ export type FitnessGoal = 'weight_loss' | 'maintenance' | 'muscle_gain';
 
 export type MealCategory = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 
+export type SubscriptionTier = 'free' | 'pro';
+
 export interface MacroNutrients {
   calories: number; // in kcal
   protein: number;  // in grams
@@ -24,6 +26,7 @@ export interface FoodItem {
 
 export interface LoggedMeal {
   id: string;
+  userId: string;
   foodId?: string;
   name: string;
   mealCategory: MealCategory;
@@ -33,6 +36,9 @@ export interface LoggedMeal {
   carbs: number;
   fat: number;
   loggedAt: string;
+  mealTime?: string;
+  date?: string; // YYYY-MM-DD
+  notes?: string;
 }
 
 export interface GoalPreset {
@@ -47,10 +53,12 @@ export interface GoalPreset {
 }
 
 export interface UserProfile {
+  id: string;
   name: string;
   email: string;
   avatarUrl: string;
   currentGoal: FitnessGoal;
+  subscriptionTier: SubscriptionTier;
   presets: Record<FitnessGoal, GoalPreset>;
 }
 
@@ -61,4 +69,15 @@ export interface NotificationItem {
   time: string;
   type: 'warning' | 'info' | 'success';
   read: boolean;
+}
+
+export interface DailyIntakeSummary {
+  dayName: string;
+  date: string;
+  calories: number;
+  targetCalories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  isOverBudget: boolean;
 }
